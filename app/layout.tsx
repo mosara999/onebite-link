@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pomodoro",
-  description: "A simple pomodoro timer",
+  title: "한입 링크",
+  description: "북마크를 폴더별로 정리하는 링크 관리 서비스",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
