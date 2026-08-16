@@ -7,6 +7,7 @@ import type { Folder } from "@/lib/types";
 type FolderContextValue = {
   folders: Folder[];
   addFolder: (name: string) => void;
+  deleteFolder: (id: string) => void;
 };
 
 const FolderContext = createContext<FolderContextValue | null>(null);
@@ -21,8 +22,12 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     setFolders((prev) => [...prev, { id, name: trimmed }]);
   }
 
+  function deleteFolder(id: string) {
+    setFolders((prev) => prev.filter((folder) => folder.id !== id));
+  }
+
   return (
-    <FolderContext.Provider value={{ folders, addFolder }}>
+    <FolderContext.Provider value={{ folders, addFolder, deleteFolder }}>
       {children}
     </FolderContext.Provider>
   );

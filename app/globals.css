@@ -62,3 +62,20 @@ select {
 .btn-secondary:hover {
   background: var(--hover-bg);
 }
+
+/* 위험(삭제) 버튼 */
+.btn-danger {
+  background: var(--error);
+}
+.btn-danger:hover {
+  background: #d64545;
+}
+
+/* 사이드바 폴더 항목에 마우스 오버 시 삭제 버튼 노출 */
+.folder-item:hover .folder-delete-btn {
+  opacity: 1;
+}
+.folder-delete-btn:hover {
+  background: var(--hover-bg);
+  color: var(--error);
+}
