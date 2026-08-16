@@ -1,5 +1,6 @@
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
+import { FolderProvider } from "@/lib/folder-context";
 
 export default function MainLayout({
   children,
@@ -7,12 +8,14 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-full flex-1 flex-col bg-[var(--background)]">
-      <Header />
-      <div className="flex flex-1">
-        <Sidebar />
-        {children}
+    <FolderProvider>
+      <div className="flex min-h-full flex-1 flex-col bg-[var(--background)]">
+        <Header />
+        <div className="flex flex-1">
+          <Sidebar />
+          {children}
+        </div>
       </div>
-    </div>
+    </FolderProvider>
   );
 }
