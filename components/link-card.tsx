@@ -17,21 +17,23 @@ export default function LinkCard({ link }: { link: LinkItem }) {
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 transition hover:shadow-md"
+      className="card-hover flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-4"
     >
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-sm font-semibold text-blue-600">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-sm font-semibold text-[var(--accent)]">
           {hostname[0]?.toUpperCase() ?? "?"}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-gray-900">
+          <p className="truncate text-sm font-medium text-[var(--text)]">
             {link.title}
           </p>
-          <p className="truncate text-xs text-gray-500">{hostname}</p>
+          <p className="truncate text-xs text-[var(--text-sub)]">{hostname}</p>
         </div>
       </div>
-      <p className="line-clamp-2 text-sm text-gray-600">{link.description}</p>
-      <span className="mt-auto inline-block w-fit rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+      <p className="line-clamp-2 text-sm text-[var(--text-sub)]">
+        {link.description}
+      </p>
+      <span className="mt-auto inline-block w-fit rounded-full bg-[var(--hover-bg)] px-2 py-0.5 text-xs text-[var(--text-sub)]">
         {getFolderName(link.folderId)}
       </span>
     </a>
