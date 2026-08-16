@@ -4,8 +4,9 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { getFolderName } from "@/lib/mock-data";
 import { useLinks } from "@/lib/link-context";
+import { useFolders } from "@/lib/folder-context";
 import type { LinkItem } from "@/lib/types";
-import { TrashIcon } from "@/components/icons";
+import { PencilIcon, TrashIcon } from "@/components/icons";
 
 function getHostname(url: string) {
   try {
@@ -16,9 +17,31 @@ function getHostname(url: string) {
 }
 
 export default function LinkCard({ link }: { link: LinkItem }) {
-  const { deleteLink } = useLinks();
+  const { updateLink, deleteLink } = useLinks();
+  const { folders } = useFolders();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState(link.title);
+  const [editDescription, setEditDescription] = useState(link.description);
+  const [editFolderId, setEditFolderId] = useState(link.folderId);
   const hostname = getHostname(link.url);
+
+  function openEditModal() {
+    setEditTitle(link.title);
+    setEditDescription(link.description);
+    setEditFolderId(link.folderId);
+    setEditOpen(true);
+  }
+
+  function confirmEdit() {
+    if (!editTitle.trim()) return;
+    updateLink(link.id, {
+      title: editTitle.trim(),
+      description: editDescription,
+      folderId: editFolderId,
+    });
+    setEditOpen(false);
+  }
 
   return (
     <div className="link-card-item relative">
@@ -57,14 +80,107 @@ export default function LinkCard({ link }: { link: LinkItem }) {
         </span>
       </a>
 
-      <button
-        type="button"
-        onClick={() => setConfirmOpen(true)}
-        aria-label="링크 삭제"
-        className="link-delete-btn absolute top-2 right-2 rounded-md border border-[var(--border)] bg-[var(--card-bg)] p-1.5 text-[var(--text-sub)] opacity-0"
-      >
-        <TrashIcon />
-      </button>
+      <div className="absolute top-2 right-2 flex gap-1">
+        <button
+          type="button"
+          onClick={openEditModal}
+          aria-label="링크 수정"
+          className="link-action-btn link-edit-btn rounded-md border border-[var(--border)] bg-[var(--card-bg)] p-1.5 text-[var(--text-sub)] opacity-0"
+        >
+          <PencilIcon />
+        </button>
+        <button
+          type="button"
+          onClick={() => setConfirmOpen(true)}
+          aria-label="링크 삭제"
+          className="link-action-btn link-delete-btn rounded-md border border-[var(--border)] bg-[var(--card-bg)] p-1.5 text-[var(--text-sub)] opacity-0"
+        >
+          <TrashIcon />
+        </button>
+      </div>
+
+      {editOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="flex w-full max-w-sm flex-col gap-5 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-6">
+              <h2 className="text-lg font-semibold text-[var(--text)]">
+                링크 수정
+              </h2>
+
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="edit-link-folder"
+                  className="text-sm font-medium text-[var(--text)]"
+                >
+                  폴더
+                </label>
+                <select
+                  id="edit-link-folder"
+                  value={editFolderId}
+                  onChange={(e) => setEditFolderId(e.target.value)}
+                  className="rounded-md border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-base text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                >
+                  {folders.map((folder) => (
+                    <option key={folder.id} value={folder.id}>
+                      {folder.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="edit-link-title"
+                  className="text-sm font-medium text-[var(--text)]"
+                >
+                  제목
+                </label>
+                <input
+                  id="edit-link-title"
+                  type="text"
+                  autoFocus
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="rounded-md border border-[var(--border)] px-3 py-2 text-base text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] focus:border-[var(--accent)]"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label
+                  htmlFor="edit-link-description"
+                  className="text-sm font-medium text-[var(--text)]"
+                >
+                  설명
+                </label>
+                <textarea
+                  id="edit-link-description"
+                  rows={3}
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  className="resize-none rounded-md border border-[var(--border)] px-3 py-2 text-base text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] focus:border-[var(--accent)]"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditOpen(false)}
+                  className="btn-secondary rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--text)]"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmEdit}
+                  className="btn-primary rounded-md px-4 py-2 text-sm font-medium text-white"
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {confirmOpen &&
         createPortal(

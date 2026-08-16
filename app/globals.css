@@ -84,9 +84,13 @@ select {
   color: var(--error);
 }
 
-/* 링크 카드에 마우스 오버 시 삭제 버튼 노출 */
-.link-card-item:hover .link-delete-btn {
+/* 링크 카드에 마우스 오버 시 수정/삭제 버튼 노출 */
+.link-card-item:hover .link-action-btn {
   opacity: 1;
+}
+.link-edit-btn:hover {
+  background: var(--hover-bg);
+  color: var(--accent);
 }
 .link-delete-btn:hover {
   background: var(--hover-bg);

@@ -5,10 +5,12 @@ import { links as initialLinks } from "@/lib/mock-data";
 import type { LinkItem } from "@/lib/types";
 
 type NewLinkInput = Omit<LinkItem, "id">;
+type LinkEditableFields = Pick<LinkItem, "title" | "description" | "folderId">;
 
 type LinkContextValue = {
   links: LinkItem[];
   addLink: (link: NewLinkInput) => void;
+  updateLink: (id: string, updates: LinkEditableFields) => void;
   deleteLink: (id: string) => void;
 };
 
@@ -22,12 +24,18 @@ export function LinkProvider({ children }: { children: ReactNode }) {
     setLinks((prev) => [newLink, ...prev]);
   }
 
+  function updateLink(id: string, updates: LinkEditableFields) {
+    setLinks((prev) =>
+      prev.map((link) => (link.id === id ? { ...link, ...updates } : link)),
+    );
+  }
+
   function deleteLink(id: string) {
     setLinks((prev) => prev.filter((link) => link.id !== id));
   }
 
   return (
-    <LinkContext.Provider value={{ links, addLink, deleteLink }}>
+    <LinkContext.Provider value={{ links, addLink, updateLink, deleteLink }}>
       {children}
     </LinkContext.Provider>
   );
