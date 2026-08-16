@@ -17,8 +17,16 @@ export default function LinkCard({ link }: { link: LinkItem }) {
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="card-hover flex flex-col gap-3 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-4"
+      className="card-hover flex flex-col gap-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-4"
     >
+      {link.thumbnail && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={link.thumbnail}
+          alt=""
+          className="-mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] max-w-none object-cover"
+        />
+      )}
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)]/10 text-sm font-semibold text-[var(--accent)]">
           {hostname[0]?.toUpperCase() ?? "?"}

@@ -1,7 +1,10 @@
-import { links } from "@/lib/mock-data";
+"use client";
+
+import { useLinks } from "@/lib/link-context";
 import LinkCard from "@/components/link-card";
 
 export default function LinkGrid({ folderId }: { folderId?: string }) {
+  const { links } = useLinks();
   const visibleLinks = folderId
     ? links.filter((link) => link.folderId === folderId)
     : links;
