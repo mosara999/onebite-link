@@ -71,9 +71,13 @@ select {
   background: #d64545;
 }
 
-/* 사이드바 폴더 항목에 마우스 오버 시 삭제 버튼 노출 */
-.folder-item:hover .folder-delete-btn {
+/* 사이드바 폴더 항목에 마우스 오버 시 수정/삭제 버튼 노출 */
+.folder-item:hover .folder-action-btn {
   opacity: 1;
+}
+.folder-edit-btn:hover {
+  background: var(--hover-bg);
+  color: var(--accent);
 }
 .folder-delete-btn:hover {
   background: var(--hover-bg);
