@@ -83,3 +83,12 @@ select {
   background: var(--hover-bg);
   color: var(--error);
 }
+
+/* 링크 카드에 마우스 오버 시 삭제 버튼 노출 */
+.link-card-item:hover .link-delete-btn {
+  opacity: 1;
+}
+.link-delete-btn:hover {
+  background: var(--hover-bg);
+  color: var(--error);
+}

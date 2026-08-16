@@ -9,6 +9,7 @@ type NewLinkInput = Omit<LinkItem, "id">;
 type LinkContextValue = {
   links: LinkItem[];
   addLink: (link: NewLinkInput) => void;
+  deleteLink: (id: string) => void;
 };
 
 const LinkContext = createContext<LinkContextValue | null>(null);
@@ -21,8 +22,12 @@ export function LinkProvider({ children }: { children: ReactNode }) {
     setLinks((prev) => [newLink, ...prev]);
   }
 
+  function deleteLink(id: string) {
+    setLinks((prev) => prev.filter((link) => link.id !== id));
+  }
+
   return (
-    <LinkContext.Provider value={{ links, addLink }}>
+    <LinkContext.Provider value={{ links, addLink, deleteLink }}>
       {children}
     </LinkContext.Provider>
   );
