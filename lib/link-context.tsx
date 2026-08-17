@@ -18,7 +18,7 @@ type LinkContextValue = {
   isAddingLink: boolean;
   addLink: (link: NewLinkInput) => Promise<void>;
   updateLink: (id: number, updates: LinkEditableFields) => Promise<void>;
-  deleteLink: (id: number) => void;
+  deleteLink: (id: number) => Promise<void>;
 };
 
 const LinkContext = createContext<LinkContextValue | null>(null);
@@ -67,7 +67,12 @@ export function LinkProvider({
     );
   }
 
-  function deleteLink(id: number) {
+  async function deleteLink(id: number) {
+    const supabase = createClient();
+    const { error } = await supabase.from("links").delete().eq("id", id);
+
+    if (error) throw error;
+
     setLinks((prev) => prev.filter((link) => link.id !== id));
   }
 

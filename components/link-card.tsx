@@ -206,8 +206,8 @@ export default function LinkCard({ link }: { link: LinkItem }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    deleteLink(link.id);
+                  onClick={async () => {
+                    await deleteLink(link.id);
                     setConfirmOpen(false);
                   }}
                   className="btn-danger rounded-md px-4 py-2 text-sm font-medium text-white"
