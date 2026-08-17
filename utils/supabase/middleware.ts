@@ -4,7 +4,11 @@ import { type NextRequest, NextResponse } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-export const createClient = (request: NextRequest) => {
+// 로그인한 사용자만 접근할 수 있는 페이지: 인덱스, 폴더별 페이지, 새 링크 페이지
+const isProtectedRoute = (pathname: string) =>
+  pathname === "/" || pathname === "/new" || pathname.startsWith("/folder");
+
+export const updateSession = async (request: NextRequest) => {
   // Create an unmodified response
   let supabaseResponse = NextResponse.next({
     request: {
@@ -32,6 +36,16 @@ export const createClient = (request: NextRequest) => {
       },
     },
   );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user && isProtectedRoute(request.nextUrl.pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse
 };
