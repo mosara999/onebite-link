@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useFolders } from "@/lib/folder-context";
 import type { Folder } from "@/lib/types";
-import { PencilIcon, TrashIcon } from "@/components/icons";
+import { createClient } from "@/utils/supabase/client";
+import { LogoutIcon, PencilIcon, TrashIcon } from "@/components/icons";
 
 export default function Sidebar() {
+  const router = useRouter();
   const { folders, renameFolder, deleteFolder } = useFolders();
   const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
   const [folderToEdit, setFolderToEdit] = useState<Folder | null>(null);
   const [editName, setEditName] = useState("");
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   async function confirmDelete() {
     if (!folderToDelete) return;
@@ -30,8 +34,17 @@ export default function Sidebar() {
     setFolderToEdit(null);
   }
 
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
+
   return (
-    <aside className="w-56 shrink-0 border-r border-[var(--border)] bg-[var(--background)] p-4">
+    <aside className="flex w-56 shrink-0 flex-col justify-between border-r border-[var(--border)] bg-[var(--background)] p-4">
       <nav className="flex flex-col gap-1">
         <Link
           href="/"
@@ -74,6 +87,16 @@ export default function Sidebar() {
           ))}
         </ul>
       </nav>
+
+      <button
+        type="button"
+        onClick={handleLogout}
+        disabled={isLoggingOut}
+        className="nav-hover flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--text-sub)] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <LogoutIcon />
+        {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+      </button>
 
       {folderToEdit &&
         createPortal(
