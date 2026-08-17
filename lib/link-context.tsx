@@ -1,41 +1,72 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { links as initialLinks } from "@/lib/mock-data";
+import { createClient } from "@/utils/supabase/client";
 import type { LinkItem } from "@/lib/types";
 
-type NewLinkInput = Omit<LinkItem, "id">;
-type LinkEditableFields = Pick<LinkItem, "title" | "description" | "folderId">;
+type NewLinkInput = {
+  url: string;
+  title: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  folder_id: number | null;
+};
+type LinkEditableFields = Pick<LinkItem, "title" | "description" | "folder_id">;
 
 type LinkContextValue = {
   links: LinkItem[];
-  addLink: (link: NewLinkInput) => void;
-  updateLink: (id: string, updates: LinkEditableFields) => void;
-  deleteLink: (id: string) => void;
+  isAddingLink: boolean;
+  addLink: (link: NewLinkInput) => Promise<void>;
+  updateLink: (id: number, updates: LinkEditableFields) => void;
+  deleteLink: (id: number) => void;
 };
 
 const LinkContext = createContext<LinkContextValue | null>(null);
 
-export function LinkProvider({ children }: { children: ReactNode }) {
+export function LinkProvider({
+  children,
+  initialLinks,
+}: {
+  children: ReactNode;
+  initialLinks: LinkItem[];
+}) {
   const [links, setLinks] = useState<LinkItem[]>(initialLinks);
+  const [isAddingLink, setIsAddingLink] = useState(false);
 
-  function addLink(link: NewLinkInput) {
-    const newLink: LinkItem = { ...link, id: `link-${Date.now()}` };
-    setLinks((prev) => [newLink, ...prev]);
+  async function addLink(link: NewLinkInput) {
+    if (isAddingLink) return;
+
+    setIsAddingLink(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("links")
+        .insert(link)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setLinks((prev) => [data as LinkItem, ...prev]);
+    } finally {
+      setIsAddingLink(false);
+    }
   }
 
-  function updateLink(id: string, updates: LinkEditableFields) {
+  function updateLink(id: number, updates: LinkEditableFields) {
     setLinks((prev) =>
       prev.map((link) => (link.id === id ? { ...link, ...updates } : link)),
     );
   }
 
-  function deleteLink(id: string) {
+  function deleteLink(id: number) {
     setLinks((prev) => prev.filter((link) => link.id !== id));
   }
 
   return (
-    <LinkContext.Provider value={{ links, addLink, updateLink, deleteLink }}>
+    <LinkContext.Provider
+      value={{ links, isAddingLink, addLink, updateLink, deleteLink }}
+    >
       {children}
     </LinkContext.Provider>
   );

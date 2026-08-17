@@ -31,12 +31,12 @@ export default function LinkForm() {
       }
       const og = await response.json();
 
-      addLink({
-        title: og.title ?? url,
-        description: og.description ?? "",
-        thumbnail: og.image,
+      await addLink({
         url: og.url ?? url,
-        folderId: folderId || String(folders[0]?.id ?? ""),
+        title: og.title ?? url,
+        description: og.description || null,
+        thumbnail_url: og.image ?? null,
+        folder_id: folderId ? Number(folderId) : null,
       });
 
       router.push("/");

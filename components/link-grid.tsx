@@ -5,8 +5,9 @@ import LinkCard from "@/components/link-card";
 
 export default function LinkGrid({ folderId }: { folderId?: string }) {
   const { links } = useLinks();
-  const visibleLinks = folderId
-    ? links.filter((link) => link.folderId === folderId)
+  const folderIdNum = folderId ? Number(folderId) : undefined;
+  const visibleLinks = folderIdNum
+    ? links.filter((link) => link.folder_id === folderIdNum)
     : links;
 
   return (

@@ -5,10 +5,11 @@ export type Folder = {
 };
 
 export type LinkItem = {
-  id: string;
-  title: string;
+  id: number;
   url: string;
-  description: string;
-  thumbnail?: string;
-  folderId: string;
+  title: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  folder_id: number | null;
+  created_at?: string;
 };

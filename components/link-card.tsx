@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { getFolderName } from "@/lib/mock-data";
 import { useLinks } from "@/lib/link-context";
 import { useFolders } from "@/lib/folder-context";
 import type { LinkItem } from "@/lib/types";
@@ -21,15 +20,18 @@ export default function LinkCard({ link }: { link: LinkItem }) {
   const { folders } = useFolders();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editTitle, setEditTitle] = useState(link.title);
-  const [editDescription, setEditDescription] = useState(link.description);
-  const [editFolderId, setEditFolderId] = useState(link.folderId);
+  const [editTitle, setEditTitle] = useState(link.title ?? "");
+  const [editDescription, setEditDescription] = useState(link.description ?? "");
+  const [editFolderId, setEditFolderId] = useState(
+    link.folder_id !== null ? String(link.folder_id) : "",
+  );
   const hostname = getHostname(link.url);
+  const folderName = folders.find((folder) => folder.id === link.folder_id)?.name;
 
   function openEditModal() {
-    setEditTitle(link.title);
-    setEditDescription(link.description);
-    setEditFolderId(link.folderId);
+    setEditTitle(link.title ?? "");
+    setEditDescription(link.description ?? "");
+    setEditFolderId(link.folder_id !== null ? String(link.folder_id) : "");
     setEditOpen(true);
   }
 
@@ -38,7 +40,7 @@ export default function LinkCard({ link }: { link: LinkItem }) {
     updateLink(link.id, {
       title: editTitle.trim(),
       description: editDescription,
-      folderId: editFolderId,
+      folder_id: editFolderId ? Number(editFolderId) : null,
     });
     setEditOpen(false);
   }
@@ -51,10 +53,10 @@ export default function LinkCard({ link }: { link: LinkItem }) {
         rel="noopener noreferrer"
         className="card-hover flex h-full flex-col gap-3 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card-bg)] p-4"
       >
-        {link.thumbnail && (
+        {link.thumbnail_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={link.thumbnail}
+            src={link.thumbnail_url}
             alt=""
             className="-mx-4 -mt-4 aspect-video w-[calc(100%+2rem)] max-w-none object-cover"
           />
@@ -75,9 +77,11 @@ export default function LinkCard({ link }: { link: LinkItem }) {
         <p className="line-clamp-2 text-sm text-[var(--text-sub)]">
           {link.description}
         </p>
-        <span className="mt-auto inline-block w-fit rounded-full bg-[var(--hover-bg)] px-2 py-0.5 text-xs text-[var(--text-sub)]">
-          {getFolderName(link.folderId)}
-        </span>
+        {folderName && (
+          <span className="mt-auto inline-block w-fit rounded-full bg-[var(--hover-bg)] px-2 py-0.5 text-xs text-[var(--text-sub)]">
+            {folderName}
+          </span>
+        )}
       </a>
 
       <div className="absolute top-2 right-2 flex gap-1">
