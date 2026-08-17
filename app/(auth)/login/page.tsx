@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import Toast from "@/components/toast";
 
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isKakaoSubmitting, setIsKakaoSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const isFormFilled = email.trim() !== "" && password !== "";
@@ -41,6 +43,26 @@ export default function LoginPage() {
     }
 
     router.push("/");
+  }
+
+  async function handleKakaoLogin() {
+    if (isKakaoSubmitting) return;
+
+    setIsKakaoSubmitting(true);
+    setErrorMessage("");
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "kakao",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setErrorMessage("카카오 로그인 중 오류가 발생했습니다.");
+      setIsKakaoSubmitting(false);
+    }
   }
 
   return (
@@ -97,6 +119,22 @@ export default function LoginPage() {
             className="btn-primary rounded-md px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isSubmitting ? "로그인 중..." : "로그인"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleKakaoLogin}
+            disabled={isKakaoSubmitting}
+            aria-label="카카오 로그인"
+            className="relative h-11 w-full overflow-hidden rounded-md disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Image
+              src="/kakao_login_large_wide.png"
+              alt="카카오 로그인"
+              fill
+              sizes="384px"
+              className="object-cover"
+            />
           </button>
         </form>
 
