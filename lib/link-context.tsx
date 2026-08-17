@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { LinkItem } from "@/lib/types";
 
@@ -32,6 +32,40 @@ export function LinkProvider({
 }) {
   const [links, setLinks] = useState<LinkItem[]>(initialLinks);
   const [isAddingLink, setIsAddingLink] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    let knownUserId: string | null | undefined = undefined;
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const nextUserId = session?.user?.id ?? null;
+
+      if (knownUserId === undefined) {
+        knownUserId = nextUserId;
+        return;
+      }
+
+      if (nextUserId === knownUserId) return;
+      knownUserId = nextUserId;
+
+      if (!nextUserId) {
+        setLinks([]);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("links")
+        .select("id, url, title, description, thumbnail_url, folder_id, created_at")
+        .eq("user_id", nextUserId)
+        .order("id", { ascending: false });
+
+      setLinks((data ?? []) as LinkItem[]);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function addLink(link: NewLinkInput) {
     if (isAddingLink) return;

@@ -13,14 +13,21 @@ export default async function MainLayout({
 }) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userId = user?.id ?? "";
+
   const [{ data: initialFolders }, { data: initialLinks }] = await Promise.all([
     supabase
       .from("folders")
       .select("id, name, created_at")
+      .eq("user_id", userId)
       .order("id", { ascending: true }),
     supabase
       .from("links")
       .select("id, url, title, description, thumbnail_url, folder_id, created_at")
+      .eq("user_id", userId)
       .order("id", { ascending: false }),
   ]);
 

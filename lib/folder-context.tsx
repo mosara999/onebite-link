@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { createClient } from "@/utils/supabase/client";
 import type { Folder } from "@/lib/types";
 
@@ -23,6 +23,40 @@ export function FolderProvider({
 }) {
   const [folders, setFolders] = useState<Folder[]>(initialFolders);
   const [isAddingFolder, setIsAddingFolder] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    let knownUserId: string | null | undefined = undefined;
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const nextUserId = session?.user?.id ?? null;
+
+      if (knownUserId === undefined) {
+        knownUserId = nextUserId;
+        return;
+      }
+
+      if (nextUserId === knownUserId) return;
+      knownUserId = nextUserId;
+
+      if (!nextUserId) {
+        setFolders([]);
+        return;
+      }
+
+      const { data } = await supabase
+        .from("folders")
+        .select("id, name, created_at")
+        .eq("user_id", nextUserId)
+        .order("id", { ascending: true });
+
+      setFolders((data ?? []) as Folder[]);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function addFolder(name: string) {
     const trimmed = name.trim();
