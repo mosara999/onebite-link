@@ -24,9 +24,9 @@ export default function Sidebar() {
     setEditName(folder.name);
   }
 
-  function confirmRename() {
+  async function confirmRename() {
     if (!folderToEdit || !editName.trim()) return;
-    renameFolder(folderToEdit.id, editName);
+    await renameFolder(folderToEdit.id, editName);
     setFolderToEdit(null);
   }
 
