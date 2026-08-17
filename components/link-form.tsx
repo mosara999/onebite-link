@@ -11,7 +11,7 @@ export default function LinkForm() {
   const { addLink } = useLinks();
 
   const [url, setUrl] = useState("");
-  const [folderId, setFolderId] = useState(folders[0]?.id ?? "");
+  const [folderId, setFolderId] = useState(String(folders[0]?.id ?? ""));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,7 +36,7 @@ export default function LinkForm() {
         description: og.description ?? "",
         thumbnail: og.image,
         url: og.url ?? url,
-        folderId: folderId || folders[0]?.id || "",
+        folderId: folderId || String(folders[0]?.id ?? ""),
       });
 
       router.push("/");

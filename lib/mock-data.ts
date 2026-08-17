@@ -1,6 +1,11 @@
-import type { Folder, LinkItem } from "@/lib/types";
+import type { LinkItem } from "@/lib/types";
 
-export const folders: Folder[] = [
+type MockFolder = {
+  id: string;
+  name: string;
+};
+
+export const folders: MockFolder[] = [
   { id: "dev", name: "개발" },
   { id: "design", name: "디자인" },
   { id: "reading", name: "읽을거리" },

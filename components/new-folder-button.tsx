@@ -5,19 +5,27 @@ import { createPortal } from "react-dom";
 import { useFolders } from "@/lib/folder-context";
 
 export default function NewFolderButton() {
-  const { addFolder } = useFolders();
+  const { addFolder, isAddingFolder } = useFolders();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [error, setError] = useState("");
 
   function closeModal() {
     setOpen(false);
     setName("");
+    setError("");
   }
 
-  function handleSave() {
-    if (!name.trim()) return;
-    addFolder(name);
-    closeModal();
+  async function handleSave() {
+    if (!name.trim() || isAddingFolder) return;
+
+    setError("");
+    try {
+      await addFolder(name);
+      closeModal();
+    } catch {
+      setError("폴더를 추가하지 못했습니다. 다시 시도해주세요.");
+    }
   }
 
   return (
@@ -55,20 +63,25 @@ export default function NewFolderButton() {
                   className="rounded-md border border-[var(--border)] px-3 py-2 text-base text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] focus:border-[var(--accent)]"
                 />
               </div>
+
+              {error && <p className="text-sm text-[var(--error)]">{error}</p>}
+
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="btn-secondary rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--text)]"
+                  disabled={isAddingFolder}
+                  className="btn-secondary rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   취소
                 </button>
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="btn-primary rounded-md px-4 py-2 text-sm font-medium text-white"
+                  disabled={isAddingFolder}
+                  className="btn-primary rounded-md px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  저장
+                  {isAddingFolder ? "추가하는 중..." : "저장"}
                 </button>
               </div>
             </div>

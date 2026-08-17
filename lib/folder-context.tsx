@@ -1,29 +1,51 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { folders as initialFolders } from "@/lib/mock-data";
+import { createClient } from "@/utils/supabase/client";
 import type { Folder } from "@/lib/types";
 
 type FolderContextValue = {
   folders: Folder[];
-  addFolder: (name: string) => void;
-  renameFolder: (id: string, name: string) => void;
-  deleteFolder: (id: string) => void;
+  isAddingFolder: boolean;
+  addFolder: (name: string) => Promise<void>;
+  renameFolder: (id: number, name: string) => void;
+  deleteFolder: (id: number) => void;
 };
 
 const FolderContext = createContext<FolderContextValue | null>(null);
 
-export function FolderProvider({ children }: { children: ReactNode }) {
+export function FolderProvider({
+  children,
+  initialFolders,
+}: {
+  children: ReactNode;
+  initialFolders: Folder[];
+}) {
   const [folders, setFolders] = useState<Folder[]>(initialFolders);
+  const [isAddingFolder, setIsAddingFolder] = useState(false);
 
-  function addFolder(name: string) {
+  async function addFolder(name: string) {
     const trimmed = name.trim();
-    if (!trimmed) return;
-    const id = `folder-${Date.now()}`;
-    setFolders((prev) => [...prev, { id, name: trimmed }]);
+    if (!trimmed || isAddingFolder) return;
+
+    setIsAddingFolder(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("folders")
+        .insert({ name: trimmed })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setFolders((prev) => [...prev, data as Folder]);
+    } finally {
+      setIsAddingFolder(false);
+    }
   }
 
-  function renameFolder(id: string, name: string) {
+  function renameFolder(id: number, name: string) {
     const trimmed = name.trim();
     if (!trimmed) return;
     setFolders((prev) =>
@@ -33,13 +55,13 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  function deleteFolder(id: string) {
+  function deleteFolder(id: number) {
     setFolders((prev) => prev.filter((folder) => folder.id !== id));
   }
 
   return (
     <FolderContext.Provider
-      value={{ folders, addFolder, renameFolder, deleteFolder }}
+      value={{ folders, isAddingFolder, addFolder, renameFolder, deleteFolder }}
     >
       {children}
     </FolderContext.Provider>
