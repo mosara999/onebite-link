@@ -35,9 +35,9 @@ export default function LinkCard({ link }: { link: LinkItem }) {
     setEditOpen(true);
   }
 
-  function confirmEdit() {
+  async function confirmEdit() {
     if (!editTitle.trim()) return;
-    updateLink(link.id, {
+    await updateLink(link.id, {
       title: editTitle.trim(),
       description: editDescription,
       folder_id: editFolderId ? Number(editFolderId) : null,

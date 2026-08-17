@@ -17,7 +17,7 @@ type LinkContextValue = {
   links: LinkItem[];
   isAddingLink: boolean;
   addLink: (link: NewLinkInput) => Promise<void>;
-  updateLink: (id: number, updates: LinkEditableFields) => void;
+  updateLink: (id: number, updates: LinkEditableFields) => Promise<void>;
   deleteLink: (id: number) => void;
 };
 
@@ -53,7 +53,15 @@ export function LinkProvider({
     }
   }
 
-  function updateLink(id: number, updates: LinkEditableFields) {
+  async function updateLink(id: number, updates: LinkEditableFields) {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("links")
+      .update(updates)
+      .eq("id", id);
+
+    if (error) throw error;
+
     setLinks((prev) =>
       prev.map((link) => (link.id === id ? { ...link, ...updates } : link)),
     );
