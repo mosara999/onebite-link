@@ -13,9 +13,9 @@ export default function Sidebar() {
   const [folderToEdit, setFolderToEdit] = useState<Folder | null>(null);
   const [editName, setEditName] = useState("");
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!folderToDelete) return;
-    deleteFolder(folderToDelete.id);
+    await deleteFolder(folderToDelete.id);
     setFolderToDelete(null);
   }
 
