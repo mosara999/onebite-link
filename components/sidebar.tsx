@@ -88,15 +88,24 @@ export default function Sidebar() {
         </ul>
       </nav>
 
-      <button
-        type="button"
-        onClick={handleLogout}
-        disabled={isLoggingOut}
-        className="nav-hover flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--text-sub)] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <LogoutIcon />
-        {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
-      </button>
+      <div className="flex flex-col gap-1">
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="nav-hover flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--text-sub)] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <LogoutIcon />
+          {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+        </button>
+
+        <Link
+          href="/privacy"
+          className="nav-hover rounded-md px-3 py-2 text-sm text-[var(--text-sub)]"
+        >
+          개인정보 처리방침
+        </Link>
+      </div>
 
       {folderToEdit &&
         createPortal(
